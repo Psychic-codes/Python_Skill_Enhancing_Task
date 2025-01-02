@@ -1,6 +1,6 @@
 import requests
 
-api_key = 'c789b525522878f9cc70dadc4c31b6e7'
+api_key = 'Your_API_Key'
 city = 'Mumbai'
 url = f'http://api.weatherstack.com/current?access_key={api_key}&query={city}'
 
