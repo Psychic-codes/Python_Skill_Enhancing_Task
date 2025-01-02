@@ -1,7 +1,7 @@
 # Practice Tasks to Enhance Skills
 
 ## Table of Contents
-1. [Python Tasks](#python_tasks)
+1. [Python Tasks](#python-tasks)
 2. [API Development Task Using Flask](#api-development-task-using-flask)
 3. [Machine Learning Project](#machine-learning-project)
 
