@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Fake or Real Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="title">News Fake or Real Prediction</h1>
+        <p class="description">Enter the news headline below, and our model will predict if it’s fake or real.</p>
+
+        <form action="/predict" method="POST" class="form" id="predictionForm">
+            <textarea name="text" class="input" placeholder="Enter the news headline here..." required>{{ request.form.get('text') }}</textarea>
+            <button type="submit" class="btn">Predict</button>
+        </form>
+
+        <button id="clearButton" class="btn clear-btn">Clear Text</button>
+
+        <div class="loader"></div>
+
+        {% if News %}
+        <div class="result">
+            <h2>{{ News }}</h2>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const form = document.querySelector('#predictionForm');
+        const loader = document.querySelector('.loader');
+        const btn = document.querySelector('.btn');
+        const clearButton = document.getElementById('clearButton');
+        const resultDiv = document.querySelector('.result');
+        const textarea = document.querySelector('.input');
+
+        form.onsubmit = function () {
+            btn.disabled = true;  
+            loader.style.display = "block"; 
+        }
+
+        clearButton.onclick = function() {
+            textarea.value = '';  
+            resultDiv.style.display = 'none';  
+            loader.style.display = "none";  
+        }
+    </script>
+
+</body>
+</html>
