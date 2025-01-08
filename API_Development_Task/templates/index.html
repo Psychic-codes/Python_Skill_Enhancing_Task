@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Review Database</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            background-color: #333;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        h2 {
+            margin-top: 30px;
+            font-size: 1.5em;
+        }
+
+        #reviews-list {
+            margin-top: 20px;
+        }
+
+        .review {
+            background-color: #fafafa;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .review h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .review p {
+            font-size: 1.1em;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .review button {
+            margin-right: 10px;
+            padding: 5px 10px;
+        }
+
+        .review button.edit {
+            background-color: #4CAF50;
+        }
+
+        .review button.delete {
+            background-color: #f44336;
+        }
+
+        .review button:hover {
+            opacity: 0.8;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Movie Review Database</h1>
+    </header>
+
+    <div class="container">
+        <h2>Create a Review</h2>
+        <form id="review-form">
+            <label for="movie_title">Movie Title:</label>
+            <input type="text" id="movie_title" required placeholder="Enter movie title" title="The title of the movie you are reviewing">
+
+            <label for="review">Review:</label>
+            <input type="text" id="review" required placeholder="Write your review here" title="Your written review of the movie">
+
+            <label for="rating">Rating:</label>
+            <input type="number" id="rating" required min="1" max="10" placeholder="Rate the movie from 1 to 10" title="Rate the movie on a scale from 1 to 10">
+
+            <label for="date">Date:</label>
+            <input type="date" id="date" required title="Select the date of your review">
+
+            <button type="submit">Add Review</button>
+        </form>
+
+        <h2>All Reviews</h2>
+        <div id="reviews-list"></div>
+    </div>
+
+    <script>
+        function loadReviews() {
+            fetch('http://127.0.0.1:5000/reviews')
+                .then(response => response.json())
+                .then(reviews => {
+                    const reviewsList = document.getElementById('reviews-list');
+                    reviewsList.innerHTML = '';
+                    reviews.forEach(review => {
+                        const reviewDiv = document.createElement('div');
+                        reviewDiv.classList.add('review');
+                        reviewDiv.innerHTML = `
+                            <h3>${review.movie_title}</h3>
+                            <p>${review.review}</p>
+                            <p><strong>Rating:</strong> ${review.rating}</p>
+                            <p><strong>Date:</strong> ${review.date}</p>
+                            <button class="edit" onclick="editReview(${review.id}, '${review.movie_title}', '${review.review}', ${review.rating}, '${review.date}')">Edit</button>
+                            <button class="delete" onclick="deleteReview(${review.id})">Delete</button>
+                        `;
+                        reviewsList.appendChild(reviewDiv);
+                    });
+                });
+        }
+
+        document.getElementById('review-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newReview = {
+                movie_title: document.getElementById('movie_title').value,
+                review: document.getElementById('review').value,
+                rating: document.getElementById('rating').value,
+                date: document.getElementById('date').value
+            };
+
+            fetch('http://127.0.0.1:5000/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newReview)
+            })
+            .then(response => response.json())
+            .then(() => {
+                loadReviews();
+                document.getElementById('review-form').reset();
+            });
+        });
+
+        function deleteReview(reviewId) {
+            fetch(`http://127.0.0.1:5000/reviews/${reviewId}`, {
+                method: 'DELETE'
+            })
+            .then(() => {
+                loadReviews();
+            });
+        }
+
+        function editReview(reviewId, currentTitle, currentReview, currentRating, currentDate) {
+            const updatedReview = {
+                movie_title: prompt('Enter new movie title:', currentTitle),
+                review: prompt('Enter new review:', currentReview),
+                rating: prompt('Enter new rating:', currentRating),
+                date: prompt('Enter new date:', currentDate)
+            };
+
+            fetch(`http://127.0.0.1:5000/reviews/${reviewId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedReview)
+            })
+            .then(response => response.json())
+            .then(() => {
+                loadReviews();
+            });
+        }
+
+        window.onload = loadReviews;
+    </script>
+</body>
+</html>
